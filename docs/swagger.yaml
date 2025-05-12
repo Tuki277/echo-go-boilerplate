@@ -1,0 +1,302 @@
+basePath: /
+definitions:
+  requests.CreatePostRequest:
+    properties:
+      content:
+        example: Echo is nice!
+        type: string
+      title:
+        example: Echo
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  requests.LoginRequest:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      password:
+        example: "11111111"
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  requests.RefreshRequest:
+    properties:
+      token:
+        example: refresh_token
+        type: string
+    required:
+    - token
+    type: object
+  requests.RegisterRequest:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: "11111111"
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  requests.UpdatePostRequest:
+    properties:
+      content:
+        example: Echo is nice!
+        type: string
+      title:
+        example: Echo
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  responses.Data:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  responses.Error:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+    type: object
+  responses.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      exp:
+        type: integer
+      refreshToken:
+        type: string
+    type: object
+  responses.PostResponse:
+    properties:
+      content:
+        example: Echo is nice!
+        type: string
+      id:
+        example: 1
+        type: integer
+      title:
+        example: Echo
+        type: string
+      username:
+        example: John Doe
+        type: string
+    type: object
+info:
+  contact:
+    name: HuyTH (CTO - Cheif TrongXe Office - iKame Global)
+    url: https://huybeos2707@gmail.com - huyth@ikameglobal.com
+  description: This is a demo version of Echo app.
+  title: Echo Demo App
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Perform user login
+      operationId: user-login
+      parameters:
+      - description: User's credentials
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Authenticate a user
+      tags:
+      - User Actions
+  /posts:
+    get:
+      description: Get the list of all posts
+      operationId: posts-get
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responses.PostResponse'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Get posts
+      tags:
+      - Posts Actions
+    post:
+      consumes:
+      - application/json
+      description: Create post
+      operationId: posts-create
+      parameters:
+      - description: Post title and content
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.Data'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create post
+      tags:
+      - Posts Actions
+  /posts/{id}:
+    delete:
+      description: Delete post
+      operationId: posts-delete
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/responses.Data'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete post
+      tags:
+      - Posts Actions
+    put:
+      consumes:
+      - application/json
+      description: Update post
+      operationId: posts-update
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post title and content
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Data'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update post
+      tags:
+      - Posts Actions
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Perform refresh access token
+      operationId: user-refresh
+      parameters:
+      - description: Refresh token
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Refresh access token
+      tags:
+      - User Actions
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: New user registration
+      operationId: user-register
+      parameters:
+      - description: User's email, user's password
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.Data'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Register
+      tags:
+      - User Actions
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
