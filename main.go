@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log/slog"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/tuki277/golang-boilerplate/docs"
 	"github.com/tuki277/golang-boilerplate/internal/config"
 	"github.com/tuki277/golang-boilerplate/internal/db"
@@ -16,8 +18,8 @@ import (
 	"github.com/tuki277/golang-boilerplate/internal/server/routes"
 
 	"github.com/caarlos0/env/v11"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 const shutdownTimeout = 20 * time.Second
@@ -42,14 +44,27 @@ func main() {
 }
 
 func run() error {
-	if err := godotenv.Load(); err != nil {
-		return fmt.Errorf("load env file: %w", err)
+	envFlag := flag.String("ENV", "env", "Environment file to load (e.g., env, env.production)")
+	flag.Parse()
+
+	var envFile string
+	switch *envFlag {
+	case "env.production":
+		envFile = ".env.production"
+	default:
+		envFile = ".env"
+	}
+
+	if err := godotenv.Load(envFile); err != nil {
+		return fmt.Errorf("load env file %s: %w", envFile, err)
 	}
 
 	var cfg config.Config
 	if err := env.Parse(&cfg); err != nil {
 		return fmt.Errorf("parse env: %w", err)
 	}
+
+	log.Info(cfg.HTTP.Port)
 
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.Port)
 
